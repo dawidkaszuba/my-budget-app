@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="pl.dawidkaszuba.my_budget_app.mapper.ExpenseMapper">
+
+    <sql id="allColumns">
+        ex.id id,
+        ex.value value,
+        ex.category_id categoryId,
+        ex.creation_date_time creationDateTime,
+        ex.account_id accountId,
+        ex.change_time changeTime,
+        ex.change_account_user_id changeAccountUserId
+    </sql>
+
+    <select id="findAllByBudgetUserIdAndAccountId" resultType="pl.dawidkaszuba.my_budget_app.model.Expense">
+        SELECT
+            <include refid="allColumns"/>
+        FROM expenses ex
+        join accounts acc on acc.id = ex.account_id
+        where ex.creation_date_time >= #{startDate}
+        and ex.creation_date_time &lt;= #{endDate}
+        and acc.id = #{accountId}
+        and ex.delete_time is null
+    </select>
+
+</mapper>

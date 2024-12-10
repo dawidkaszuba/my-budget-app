@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="pl.dawidkaszuba.my_budget_app.mapper.BudgetMapper">
+
+    <sql id="allColumns">
+        bd.value value,
+    </sql>
+
+    <select id="getBudgetByBudgetUserId" resultType="pl.dawidkaszuba.my_budget_app.model.Budget">
+        SELECT
+            inc_sum - ex_sum AS balance
+        FROM (
+                SELECT
+                    SUM(inc.value) AS inc_sum
+                FROM
+                    incomes inc
+                JOIN accounts acc ON acc.id = inc.account_id
+                JOIN budget_user_to_account bdacc ON bdacc.account_id = acc.id
+                WHERE
+                    inc.creation_date_time >= #{startDate}
+                    AND inc.creation_date_time &lt;= #{endDate}
+                    AND bdacc.user_account_id = #{budgetUserId}
+                    AND inc.delete_time IS NULL
+            ) AS incomes_total,
+            (
+            SELECT
+                SUM(ex.value) AS ex_sum
+                FROM
+                    expenses ex
+                JOIN accounts acc ON acc.id = ex.account_id
+                JOIN budget_user_to_account bdacc ON bdacc.account_id = acc.id
+                WHERE
+                    ex.creation_date_time >= #{startDate}
+                    AND ex.creation_date_time &lt;= #{endDate}
+                    AND bdacc.user_account_id = #{budgetUserId}
+                    AND ex.delete_time IS NULL
+        ) AS expenses_total
+    </select>
+
+</mapper>
